@@ -3,6 +3,7 @@ import os
 from wcmatch import pathlib
 import yt_dlp
 import google_auth_oauthlib.flow
+from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 import googleapiclient.discovery
 import googleapiclient.errors
@@ -11,17 +12,46 @@ import requests
 with open("yt-dlp-playlist-config.json", "r") as tmp:
     config = json.load(tmp)
 
-archiveAllPlaylists = config["archiveAllPlaylists"]
+archiveAllUserPlaylists = config["archiveAllUserPlaylists"]
+archiveLikedVideos = config["archiveLikedVideos"]
+archiveWatchLater = config["archiveWatchLater"]
 downloadBaseDirectory = config["downloadBaseDirectory"]
 ffmpegLocation = config["ffmpegLocation"]
-fileFormat = config["fileFormat"]
+outputFileFormat = config["outputFileFormat"]
 playlists = config["playlists"]
 oauthClientSecretsFile = config["oauthClientSecretsFile"]
-ydl_opts = config["ydl_opts"]
 
-def getPlaylists():
-    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+ydl_opts = {
+  'cookiesfrombrowser': ('firefox', ),
+  'ffmpeg_location': ffmpegLocation,
+  'merge_output_format': outputFileFormat,
+  'ignoreerrors': True,
+  'windowsfilenames': True,
+  'subtitleslangs': 'all,-live_chat',
+  'postprocessors': [
+      {
+          'key': 'FFmpegEmbedSubtitle',
+      },
+      {
+          'key': 'FFmpegThumbnailsConvertor',
+          'format': 'png',
+      },
+      {
+          'key': 'FFmpegSubtitlesConvertor',
+          'format': 'ass',
+      },
+      {
+          'key': 'FFmpegMetadata',
+          'add_metadata': True,
+          'add_chapters': True,
+      },
+      {
+          'key': 'EmbedThumbnail',
+      },
+  ],
+}
 
+def getUserPlaylists():
     scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
     api_service_name = "youtube"
     api_version = "v3"
@@ -45,17 +75,18 @@ def getPlaylists():
 
     request = youtube.playlists().list(
         part="snippet",
+        maxResults=50,
         mine=True
     )
     response = request.execute()
 
-    # parse playlists here
     playlists_response = {}
     for item in response['items']:
         name = item['snippet']['title']
         url = "https://www.youtube.com/playlist?list=" + item['id']
         playlists_response[name] = url
-    print(playlists_response)
+
+    return playlists_response
 
 def cleanDirectory():
     files_to_remove = list(pathlib.Path(downloadBaseDirectory).rglob(['*.webm', '*.temp.*']))
@@ -65,16 +96,24 @@ def cleanDirectory():
 def createDirectory(directoryName):
     pathlib.Path(directoryName).mkdir(parents=False, exist_ok=True)
 
-if __name__ == "__main__":
-    if archiveAllPlaylists:
-        getPlaylists()
-    os.chdir(downloadBaseDirectory)
+def downloadPlaylists(playlists):
     for name, value in playlists.items():
         playlistDirectory = name.strip()
         createDirectory(playlistDirectory)
         ydl_opts['outtmpl'] = downloadBaseDirectory + playlistDirectory + '/%(title)s - %(channel)s - %(upload_date)s'
         ydl_opts['download_archive'] = playlistDirectory + "/" + playlistDirectory.lower() + '.txt'
-        print(ydl_opts)
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download(value["url"])
+            ydl.download(value)
+
+if __name__ == "__main__":
+    if archiveAllUserPlaylists:
+        userPlaylists = getUserPlaylists()
+        playlists.update(userPlaylists)
+    if archiveLikedVideos:
+        playlists['Liked Videos'] = "https://www.youtube.com/playlist?list=LL"
+    if archiveWatchLater:
+        playlists['Watch Later'] = "https://www.youtube.com/playlist?list=WL"
+
+    os.chdir(downloadBaseDirectory)
+    downloadPlaylists(playlists)
     cleanDirectory()

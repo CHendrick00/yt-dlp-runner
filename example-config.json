@@ -1,0 +1,10 @@
+{
+  "archiveAllUserPlaylists": true,
+  "archiveLikedVideos": true,
+  "archiveWatchLater": true,
+  "downloadBaseDirectory": "C:/Videos/yt-dlp-runner/",
+  "ffmpegLocation": "C:/Videos/yt-dlp-runner/FFMPEG/",
+  "outputFileFormat": "mkv",
+  "oauthClientSecretsFile": "client-secrets.json",
+  "playlists": {}
+}
