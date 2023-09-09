@@ -1,44 +1,10 @@
 {
-  "archiveAllPlaylists": true,
+  "archiveAllUserPlaylists": true,
+  "archiveLikedVideos": true,
+  "archiveWatchLater": true,
   "downloadBaseDirectory": "C:/Videos/yt-dlp-runner/",
   "ffmpegLocation": "C:/Videos/yt-dlp-runner/FFMPEG/",
-  "fileFormat": "mkv",
-  "playlists": {
-    "Liked Videos": {
-      "url": "https://www.youtube.com/playlist?list=LL"
-    },
-    "Watch Later": {
-      "url": "https://www.youtube.com/playlist?list=WL"
-    }
-  },
+  "outputFileFormat": "mkv",
   "oauthClientSecretsFile": "client-secrets.json",
-  "ydl_opts" = {
-      "cookiesfrombrowser": ("firefox", ),
-      "ffmpeg_location": ffmpegLocation,
-      "merge_output_format": fileFormat,
-      "ignoreerrors": true,
-      "windowsfilenames": true,
-      "subtitleslangs": "all,-live_chat",
-      "postprocessors": [
-          {
-              "key": "FFmpegEmbedSubtitle",
-          },
-          {
-              "key": "FFmpegThumbnailsConvertor",
-              "format": "png"
-          },
-          {
-              "key": "FFmpegSubtitlesConvertor",
-              "format": "ass"
-          },
-          {
-              "key": "FFmpegMetadata",
-              "add_metadata": true,
-              "add_chapters": true
-          },
-          {
-              "key": "EmbedThumbnail"
-          }
-      ]
-  }
+  "playlists": {}
 }
