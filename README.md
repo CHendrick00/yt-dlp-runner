@@ -9,3 +9,7 @@ grab all playlists for a logged-in user.
 4. Install FFMPEG
 5. Run ```py -m pip install requirements.txt``` from inside containing folder
 6. Update config file
+
+## Configuration
+- An example config file is provided
+- Property descriptions and valid values to be added at a later date
