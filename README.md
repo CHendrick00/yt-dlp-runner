@@ -13,3 +13,6 @@ grab all playlists for a logged-in user.
 ## Configuration
 - An example config file is provided
 - Property descriptions and valid values to be added at a later date
+
+## Usage
+Run using command ```py yt-dlp-playlist-runner.py```
