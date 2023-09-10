@@ -9,6 +9,8 @@ import googleapiclient.discovery
 import googleapiclient.errors
 import requests
 
+os.chdir(pathlib.Path(__file__).parent.resolve())
+
 with open("yt-dlp-playlist-config.json", "r") as tmp:
     config = json.load(tmp)
 
